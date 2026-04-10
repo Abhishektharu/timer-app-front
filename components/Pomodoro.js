@@ -1,16 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  TextInput, 
-  StyleSheet, 
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  StyleSheet,
   Alert,
-  AppState 
+  AppState
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { saveSession } from '../utils/storage';
 import { scheduleNotification, cancelNotification } from '../utils/notifications';
+import { showAlert } from '../utils/alertHelper';
 import * as Haptics from 'expo-haptics';
 import { Audio } from 'expo-audio';
 
@@ -109,7 +110,7 @@ export default function PomodoroScreen() {
 
     //play device notification sound
     await playCompletionSound();
-    
+
     // Multiple vibration pattern for completion
     try {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -119,14 +120,16 @@ export default function PomodoroScreen() {
     } catch (e) {
       console.log('Haptics error:', e);
     }
-    
+
     if (totalTime > 0) {
       const saved = await saveSession(totalTime, 'pomodoro');
       if (saved) {
-        Alert.alert('Pomodoro Complete! ✅', `Great work! Time: ${formatTime(totalTime)}`);
+        showAlert('Pomodoro Complete! ✅', `Great work! Time: ${formatTime(totalTime)}`, [
+          { text: 'OK', style: 'cancel' }
+        ]);
       }
     }
-    
+
     setTimeLeft(0);
     setTotalTime(0);
   };
@@ -134,7 +137,9 @@ export default function PomodoroScreen() {
   const handleStart = async () => {
     const minutes = parseInt(customMinutes) || 25;
     if (minutes < 1 || minutes > 180) {
-      Alert.alert('Invalid Time', 'Please enter between 1-180 minutes');
+      showAlert('Invalid Time', 'Please enter between 1-180 minutes', [
+        { text: 'OK', style: 'cancel' }
+      ]);
       return;
     }
 
@@ -146,7 +151,7 @@ export default function PomodoroScreen() {
   };
 
   const showToast = (message) => {
-    Alert.alert('', message, [{ text: 'OK', style: 'cancel' }], { cancelable: true });
+    showAlert('', message, [{ text: 'OK', style: 'cancel' }]);
   };
 
   const handlePause = () => {
@@ -160,19 +165,23 @@ export default function PomodoroScreen() {
 
   const handleSave = async () => {
     if (totalTime === 0) {
-      Alert.alert('No Session', 'Please start a timer first');
+      showAlert('No Session', 'Please start a timer first', [
+        { text: 'OK', style: 'cancel' }
+      ]);
       return;
     }
 
     const elapsedTime = totalTime - timeLeft;
     if (elapsedTime === 0) {
-      Alert.alert('No Time Elapsed', 'Timer just started');
+      showAlert('No Time Elapsed', 'Timer just started', [
+        { text: 'OK', style: 'cancel' }
+      ]);
       return;
     }
 
     const saved = await saveSession(elapsedTime, 'pomodoro');
     if (saved) {
-      Alert.alert(
+      showAlert(
         'Session Saved!',
         `Study time saved: ${formatTime(elapsedTime)}`,
         [
@@ -182,6 +191,7 @@ export default function PomodoroScreen() {
           },
           {
             text: 'Reset',
+            style: 'destructive',
             onPress: async () => {
               setIsRunning(false);
               setTimeLeft(0);
@@ -197,7 +207,7 @@ export default function PomodoroScreen() {
   const handleReset = async () => {
     if (totalTime > 0) {
       const elapsedTime = totalTime - timeLeft;
-      Alert.alert(
+      showAlert(
         'Reset Timer',
         'Do you want to save this session before resetting?',
         [
@@ -223,7 +233,9 @@ export default function PomodoroScreen() {
               setIsRunning(false);
               setTimeLeft(0);
               setTotalTime(0);
-              Alert.alert('Success', 'Session saved and timer reset!');
+              showAlert('Success', 'Session saved and timer reset!', [
+                { text: 'OK', style: 'cancel' }
+              ]);
             },
           },
         ]

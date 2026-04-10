@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  StyleSheet, 
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
   Alert,
-  AppState 
+  AppState
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { saveSession } from '../utils/storage';
+import { showAlert } from '../utils/alertHelper';
 
 export default function StopwatchScreen() {
   const [time, setTime] = useState(0);
@@ -83,19 +84,21 @@ export default function StopwatchScreen() {
   };
 
   const showToast = (message) => {
-    Alert.alert('', message, [{ text: 'OK', style: 'cancel' }], { cancelable: true });
+    showAlert('', message, [{ text: 'OK', style: 'cancel' }]);
   };
 
   const handleSave = async () => {
     if (time === 0) {
-      Alert.alert('No Time', 'Please start the timer first');
+      showAlert('No Time', 'Please start the timer first', [
+        { text: 'OK', style: 'cancel' }
+      ]);
       return;
     }
 
     const saved = await saveSession(time, 'stopwatch');
     if (saved) {
-      Alert.alert(
-        'Session Saved!', 
+      showAlert(
+        'Session Saved!',
         `Study time saved: ${formatTime(time)}`,
         [
           {
@@ -104,6 +107,7 @@ export default function StopwatchScreen() {
           },
           {
             text: 'Reset',
+            style: 'destructive',
             onPress: () => {
               setIsRunning(false);
               setTime(0);
@@ -118,7 +122,7 @@ export default function StopwatchScreen() {
 
   const handleReset = () => {
     if (time > 0) {
-      Alert.alert(
+      showAlert(
         'Reset Timer',
         'Do you want to save this session before resetting?',
         [
@@ -143,7 +147,9 @@ export default function StopwatchScreen() {
               setIsRunning(false);
               setTime(0);
               backgroundStartTimeRef.current = null;
-              Alert.alert('Success', 'Session saved and timer reset!');
+              showAlert('Success', 'Session saved and timer reset!', [
+                { text: 'OK', style: 'cancel' }
+              ]);
             },
           },
         ]
