@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  StyleSheet, 
-  View, 
-  ScrollView, 
-  Text, 
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Text,
   TouchableOpacity,
-  RefreshControl 
+  RefreshControl,
 } from 'react-native';
 import YearlyChart from '../components/YearlyChart';
 
@@ -187,9 +187,11 @@ export default function Home() {
           <Text style={styles.chartTitle}>
             {viewMode === 'week' ? 'Weekly Overview' : viewMode === 'month' ? 'Monthly Overview' : `${months[selectedMonth]} Overview`}
           </Text>
-          <View style={styles.chart}>
+          <View style={[styles.chart, { height: 180 }]}>
             {currentData.map((day, index) => {
+              const chartHeight = 180 - 20; // Subtract padding
               const heightPercent = maxValue > 0 ? (day.total / maxValue) * 100 : 0;
+              const barHeight = (heightPercent / 100) * chartHeight;
 
               // Format label based on view mode
               let displayLabel = day.day;
@@ -211,7 +213,7 @@ export default function Home() {
                     <View
                       style={[
                         styles.bar,
-                        { height: Math.max(heightPercent, 2) + '%' }
+                        { height: Math.max(barHeight, 2) }
                       ]}
                     />
                   </View>
@@ -412,7 +414,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    height: 180,
     paddingTop: 20,
   },
   barContainer: {
@@ -422,7 +423,6 @@ const styles = StyleSheet.create({
   },
   barWrapper: {
     width: '80%',
-    height: '100%',
     justifyContent: 'flex-end',
     alignItems: 'center',
   },

@@ -5,10 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  ScrollView,
 } from 'react-native';
-
-const { width } = Dimensions.get('window');
 
 export default function YearlyChart({ data }) {
   const [selectedMonth, setSelectedMonth] = useState(null);
@@ -22,15 +19,14 @@ export default function YearlyChart({ data }) {
     );
   }
 
-  const maxHours = Math.max(...data.map(d => d.hours), 1);
-  const chartWidth = width - 100;
   const chartHeight = 200;
-  const barWidth = chartWidth / data.length;
+  const maxHours = Math.max(...data.map(d => d.hours), 1);
+  const barWidth = Math.max(200 / Math.max(data.length, 1), 20);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Yearly Progress</Text>
-      
+
       {/* Bar Chart Style Display */}
       <View style={styles.chartWrapper}>
         <View style={styles.yAxisLabels}>
@@ -39,7 +35,7 @@ export default function YearlyChart({ data }) {
           <Text style={styles.yLabel}>0h</Text>
         </View>
 
-        <View style={styles.chartContainer}>
+        <View style={[styles.chartContainer, { height: chartHeight }]}>
           {/* Grid lines */}
           <View style={[styles.gridLine, { top: 0 }]} />
           <View style={[styles.gridLine, { top: chartHeight / 2 }]} />
@@ -49,6 +45,7 @@ export default function YearlyChart({ data }) {
           <View style={styles.barsContainer}>
             {data.map((item, index) => {
               const heightPercent = maxHours > 0 ? (item.hours / maxHours) * 100 : 0;
+              const barHeight = (heightPercent / 100) * chartHeight;
               const isSelected = selectedMonth === index;
 
               return (
@@ -70,7 +67,7 @@ export default function YearlyChart({ data }) {
                       style={[
                         styles.bar,
                         {
-                          height: Math.max(heightPercent, 2) + '%',
+                          height: Math.max(barHeight, 2),
                           backgroundColor: isSelected ? '#dc2626' : '#3b82f6',
                         }
                       ]}
@@ -181,6 +178,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
     flex: 1,
+    minHeight: 0,
   },
   barValue: {
     fontSize: 9,
@@ -193,6 +191,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 4,
     borderTopRightRadius: 4,
     minHeight: 2,
+    backgroundColor: '#3b82f6',
   },
   monthLabel: {
     fontSize: 8,
